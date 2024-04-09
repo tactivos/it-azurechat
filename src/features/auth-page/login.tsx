@@ -3,7 +3,6 @@ import { AI_NAME } from "@/features/theme/theme-config";
 import { signIn } from "next-auth/react";
 import { FC, useEffect } from "react";
 import { Avatar, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
@@ -36,19 +35,7 @@ export const LogIn: FC<LoginProps> = (props) => {
           Signing in with your Microsoft account
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
-        {props.githubEnabled && (
-          <Button onClick={() => signIn("github")}>GitHub</Button>
-        )}
-        {props.entraIdEnabled && (
-          <Button onClick={() => signIn("azure-ad")}>Microsoft 365</Button>
-        )}
-        {props.isDevMode && (
-          <Button onClick={() => signIn("localdev")}>
-            Basic Auth (DEV ONLY)
-          </Button>
-        )}
-      </CardContent>
+      <CardContent className="grid gap-4">Signing in...</CardContent>
     </Card>
   );
 };
