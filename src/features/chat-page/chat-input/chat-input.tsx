@@ -78,9 +78,10 @@ export const ChatInput = () => {
       <ChatInputActionArea>
         <ChatInputSecondaryActionArea>
           <AttachFile
-            onClick={(formData) =>
-              fileStore.onFileChange({ formData, chatThreadId })
-            }
+            onClick={formData => {
+              const file: File | null = formData.get('file') as File
+              return file.type === 'text/csv' ? chatStore.submitCsvChat(file) : fileStore.onFileChange({ formData, chatThreadId })
+            }}
           />
           <PromptSlider />
         </ChatInputSecondaryActionArea>

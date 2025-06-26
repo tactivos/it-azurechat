@@ -23,6 +23,12 @@ import {
   ChatMessageModel,
   ChatThreadModel,
 } from "./chat-services/models";
+import { parse } from 'csv-parse/sync';
+
+interface CsvRow {
+  [key: string]: string
+};
+
 let abortController: AbortController = new AbortController();
 
 type chatStatus = "idle" | "loading" | "file upload";
@@ -287,6 +293,32 @@ class ChatState {
     });
     formData.append("content", body);
 
+    this.chat(formData);
+  }
+
+  public async submitCsvChat(file: File) {
+    const arrayBuffer = await file.arrayBuffer();
+    const csvString = Buffer.from(arrayBuffer).toString("utf8");
+
+    const rows = parse(csvString, {
+      columns: true,
+      skip_empty_lines: true,
+    }) as CsvRow[];
+
+    const csvToJson = JSON.stringify(rows, null, 2);
+
+    const prompt = `
+    Summarize this data and ask if I would like additional analysis:
+
+\`\`\`json\n${csvToJson}\n\`\`\`
+    `.trim();
+
+    const formData = new FormData();
+    const body = JSON.stringify({
+      id: this.chatThreadId,
+      message: prompt,
+    });
+    formData.append("content", body);
     this.chat(formData);
   }
 }
