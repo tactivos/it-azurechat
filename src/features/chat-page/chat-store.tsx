@@ -296,27 +296,22 @@ class ChatState {
     this.chat(formData);
   }
 
-  public async submitCsvChat(file: File) {
+  public async submitCsvChat(file: File, e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (this.loading !== "idle") return;
+
     const arrayBuffer = await file.arrayBuffer();
     const csvString = Buffer.from(arrayBuffer).toString("utf8");
-
     const rows = parse(csvString, {
       columns: true,
       skip_empty_lines: true,
     }) as CsvRow[];
-
-    const csvToJson = JSON.stringify(rows, null, 2);
-
-    const prompt = `
-    Summarize this data and ask if I would like additional analysis:
-
-\`\`\`json\n${csvToJson}\n\`\`\`
-    `.trim();
-
+    const jsonString = JSON.stringify(rows, null, 2)
+    const csvMarkdown = `{% fileThumbnail filename="${file.name}" %}{% /fileThumbnail %} <!--hidden-->${jsonString}<!--endhidden--> ${this.input}`;
     const formData = new FormData();
     const body = JSON.stringify({
       id: this.chatThreadId,
-      message: prompt,
+      message: csvMarkdown,
     });
     formData.append("content", body);
     this.chat(formData);

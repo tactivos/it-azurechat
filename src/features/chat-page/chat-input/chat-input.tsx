@@ -19,7 +19,7 @@ import { ImageInput } from "@/features/ui/chat/chat-input-area/image-input";
 import { Microphone } from "@/features/ui/chat/chat-input-area/microphone";
 import { StopChat } from "@/features/ui/chat/chat-input-area/stop-chat";
 import { SubmitChat } from "@/features/ui/chat/chat-input-area/submit-chat";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { chatStore, useChat } from "../chat-store";
 import { fileStore, useFileStore } from "./file/file-store";
 import { PromptSlider } from "./prompt/prompt-slider";
@@ -31,6 +31,7 @@ import {
   textToSpeechStore,
   useTextToSpeech,
 } from "./speech/use-text-to-speech";
+import { FileThumbnail } from '@/features/ui/file-thumbnail'
 
 export const ChatInput = () => {
   const { loading, input, chatThreadId } = useChat();
@@ -38,6 +39,7 @@ export const ChatInput = () => {
   const { isPlaying } = useTextToSpeech();
   const { isMicrophoneReady } = useSpeechToText();
   const { rows } = useChatInputDynamicHeight();
+  const [csv, setCsv] = useState<File>()
 
   const submitButton = React.useRef<HTMLButtonElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -45,6 +47,7 @@ export const ChatInput = () => {
   const submit = () => {
     if (formRef.current) {
       formRef.current.requestSubmit();
+      setCsv(undefined)
     }
   };
 
@@ -53,10 +56,16 @@ export const ChatInput = () => {
       ref={formRef}
       onSubmit={(e) => {
         e.preventDefault();
+        if (csv) {
+          chatStore.submitCsvChat(csv, e);
+          setCsv(undefined);
+          return;
+        }
         chatStore.submitChat(e);
       }}
       status={uploadButtonLabel}
     >
+      {csv && <FileThumbnail handleClear={() => setCsv(undefined)} filename={csv.name} />}
       <ChatTextInput
         onBlur={(e) => {
           if (e.currentTarget.value.replace(/\s/g, "").length === 0) {
@@ -80,7 +89,7 @@ export const ChatInput = () => {
           <AttachFile
             onClick={formData => {
               const file: File | null = formData.get('file') as File
-              return file.type === 'text/csv' ? chatStore.submitCsvChat(file) : fileStore.onFileChange({ formData, chatThreadId })
+              return file.type === 'text/csv' ?  setCsv(file) : fileStore.onFileChange({ formData, chatThreadId })
             }}
           />
           <PromptSlider />
