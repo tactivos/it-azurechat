@@ -5,6 +5,7 @@ import { CodeBlock } from "./code-block";
 import { citationConfig } from "./config";
 import { MarkdownProvider } from "./markdown-context";
 import { Paragraph } from "./paragraph";
+import { FileThumbnail } from '../file-thumbnail'
 
 interface Props {
   content: string;
@@ -15,7 +16,9 @@ interface Props {
 }
 
 export const Markdown: FC<Props> = (props) => {
-  const ast = Markdoc.parse(props.content);
+  // 🟡 Strip hidden content before Markdoc
+  const visibleContent = props.content.replace(/<!--hidden-->[\s\S]*?<!--endhidden-->/gi, '');
+  const ast = Markdoc.parse(visibleContent);
 
   const content = Markdoc.transform(ast, {
     ...citationConfig,
@@ -24,7 +27,7 @@ export const Markdown: FC<Props> = (props) => {
   const WithContext = () => (
     <MarkdownProvider onCitationClick={props.onCitationClick}>
       {Markdoc.renderers.react(content, React, {
-        components: { Citation, Paragraph, CodeBlock },
+        components: { Citation, Paragraph, CodeBlock, FileThumbnail },
       })}
     </MarkdownProvider>
   );

@@ -23,6 +23,12 @@ import {
   ChatMessageModel,
   ChatThreadModel,
 } from "./chat-services/models";
+import { parse } from 'csv-parse/sync';
+
+interface CsvRow {
+  [key: string]: string
+};
+
 let abortController: AbortController = new AbortController();
 
 type chatStatus = "idle" | "loading" | "file upload";
@@ -288,6 +294,33 @@ class ChatState {
     formData.append("content", body);
 
     this.chat(formData);
+  }
+
+  public async submitCsvChat(file: File, e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (this.loading !== "idle") return;
+    
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const csvString = Buffer.from(arrayBuffer).toString("utf8");
+      const rows = parse(csvString, {
+        columns: true,
+        skip_empty_lines: true,
+      }) as CsvRow[];
+      const jsonString = JSON.stringify(rows, null, 2)
+      const csvMarkdown = `{% fileThumbnail filename="${file.name}" %}{% /fileThumbnail %} <!--hidden-->${jsonString}<!--endhidden--> ${this.input}`;
+      const formData = new FormData();
+      const body = JSON.stringify({
+        id: this.chatThreadId,
+        message: csvMarkdown,
+      });
+      formData.append("content", body);
+      this.chat(formData);
+    } catch(error) {
+      console.error("Failed to process CSV file:", error);
+      showError("Failed to process CSV file");
+    }
+    
   }
 }
 

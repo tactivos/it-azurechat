@@ -10,5 +10,12 @@ export const citationConfig: Config = {
   },
   tags: {
     citation,
+    fileThumbnail: {
+      render: "FileThumbnail",
+      attributes: {
+        filename: { type: String, required: true },
+        data: { type: String, required: false },
+      },
+    },
   },
 };
