@@ -51,6 +51,17 @@ export const ChatInput = () => {
     }
   };
 
+  const handleFileAttach = (formData: FormData) => {
+    const file = formData.get('file');
+    if(!file) return
+
+    if (file instanceof File && file.type === 'text/csv') {
+      setCsv(file);
+    } else {
+      fileStore.onFileChange({ formData, chatThreadId });
+    }
+  }
+
   return (
     <ChatInputForm
       ref={formRef}
@@ -86,12 +97,7 @@ export const ChatInput = () => {
       />
       <ChatInputActionArea>
         <ChatInputSecondaryActionArea>
-          <AttachFile
-            onClick={formData => {
-              const file: File | null = formData.get('file') as File
-              return file.type === 'text/csv' ?  setCsv(file) : fileStore.onFileChange({ formData, chatThreadId })
-            }}
-          />
+          <AttachFile onClick={handleFileAttach} />
           <PromptSlider />
         </ChatInputSecondaryActionArea>
         <ChatInputPrimaryActionArea>
