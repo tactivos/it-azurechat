@@ -5,8 +5,7 @@ name: Build and deploy Node.js app to Azure Web App - itazchat2-webapp-rxjah4bnt
 
 on:
   push:
-    branches:
-      - main
+    branches: []
   workflow_dispatch:
 
 jobs:
