@@ -31,7 +31,7 @@ import {
   textToSpeechStore,
   useTextToSpeech,
 } from "./speech/use-text-to-speech";
-import { FileThumbnail } from '@/features/ui/file-thumbnail'
+import { FileThumbnail } from '@/features/ui/file-thumbnail';
 
 export const ChatInput = () => {
   const { loading, input, chatThreadId } = useChat();
@@ -39,7 +39,7 @@ export const ChatInput = () => {
   const { isPlaying } = useTextToSpeech();
   const { isMicrophoneReady } = useSpeechToText();
   const { rows } = useChatInputDynamicHeight();
-  const [csv, setCsv] = useState<File>()
+  const [csv, setCsv] = useState<File>();
 
   const submitButton = React.useRef<HTMLButtonElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -47,20 +47,20 @@ export const ChatInput = () => {
   const submit = () => {
     if (formRef.current) {
       formRef.current.requestSubmit();
-      setCsv(undefined)
+      setCsv(undefined);
     }
   };
 
   const handleFileAttach = (formData: FormData) => {
     const file = formData.get('file');
-    if(!file) return
+    if(!file) return;
 
     if (file instanceof File && file.type === 'text/csv') {
       setCsv(file);
     } else {
       fileStore.onFileChange({ formData, chatThreadId });
     }
-  }
+  };
 
   return (
     <ChatInputForm

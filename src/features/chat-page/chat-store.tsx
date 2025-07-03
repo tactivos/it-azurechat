@@ -307,7 +307,7 @@ class ChatState {
         columns: true,
         skip_empty_lines: true,
       }) as CsvRow[];
-      const jsonString = JSON.stringify(rows, null, 2)
+      const jsonString = JSON.stringify(rows, null, 2);
       const csvMarkdown = `{% fileThumbnail filename="${file.name}" %}{% /fileThumbnail %} <!--hidden-->${jsonString}<!--endhidden--> ${this.input}`;
       const formData = new FormData();
       const body = JSON.stringify({

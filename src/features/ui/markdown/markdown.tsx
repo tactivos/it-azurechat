@@ -5,7 +5,7 @@ import { CodeBlock } from "./code-block";
 import { citationConfig } from "./config";
 import { MarkdownProvider } from "./markdown-context";
 import { Paragraph } from "./paragraph";
-import { FileThumbnail } from '../file-thumbnail'
+import { FileThumbnail } from '../file-thumbnail';
 
 interface Props {
   content: string;

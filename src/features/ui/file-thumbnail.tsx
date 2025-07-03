@@ -1,5 +1,5 @@
 import { Button } from "./button";
-import { FileText, Trash2 } from 'lucide-react'
+import { FileText, Trash2 } from 'lucide-react';
 
 export const FileThumbnail = (props: {
   filename: string
