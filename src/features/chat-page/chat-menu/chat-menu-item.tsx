@@ -8,16 +8,18 @@ import {
 } from "@/features/ui/dropdown-menu";
 import { LoadingIndicator } from "@/features/ui/loading";
 import { cn } from "@/ui/lib";
-import { BookmarkCheck, MoreVertical, Pencil, Trash } from "lucide-react";
+import { BookmarkCheck, Download, MoreVertical, Pencil, Trash } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FC, useState } from "react";
+import { showError } from "@/features/globals/global-message-store";
 import { ChatThreadModel } from "../chat-services/models";
 import {
   BookmarkChatThread,
   DeleteChatThreadByID,
   UpdateChatThreadTitle,
 } from "./chat-menu-service";
+import { DownloadChatExport } from "./chat-export-client";
 
 interface ChatMenuItemProps {
   href: string;
@@ -67,6 +69,12 @@ export const ChatMenuItem: FC<ChatMenuItemProps> = (props) => {
             <Pencil size={18} />
             <span>Rename</span>
           </DropdownMenuItemWithIcon>
+          <DropdownMenuItemWithIcon
+            onClick={async () => await handleAction("export")}
+          >
+            <Download size={18} />
+            <span>Export chat</span>
+          </DropdownMenuItemWithIcon>
           <DropdownMenuSeparator />
           <DropdownMenuItemWithIcon
             onClick={async () => await handleAction("delete")}
@@ -80,33 +88,45 @@ export const ChatMenuItem: FC<ChatMenuItemProps> = (props) => {
   );
 };
 
-type DropdownAction = "bookmark" | "rename" | "delete";
+type DropdownAction = "bookmark" | "rename" | "export" | "delete";
 
 const useDropdownAction = (props: { chatThread: ChatThreadModel }) => {
   const { chatThread } = props;
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAction = async (action: DropdownAction) => {
-    setIsLoading(true);
-    switch (action) {
-      case "bookmark":
-        await BookmarkChatThread({ chatThread });
-        break;
-      case "rename":
-        const name = window.prompt("Enter the new name for the chat thread:");
-        if (name !== null) {
-          await UpdateChatThreadTitle({ chatThread, name });
+    try {
+      setIsLoading(true);
+      switch (action) {
+        case "bookmark": {
+          await BookmarkChatThread({ chatThread });
+          break;
         }
-        break;
-      case "delete":
-        if (
-          window.confirm("Are you sure you want to delete this chat thread?")
-        ) {
-          await DeleteChatThreadByID(chatThread.id);
+        case "rename": {
+          const name = window.prompt("Enter the new name for the chat thread:");
+          if (name !== null) {
+            await UpdateChatThreadTitle({ chatThread, name });
+          }
+          break;
         }
-        break;
+        case "export": {
+          await DownloadChatExport({ chatThreadId: chatThread.id });
+          break;
+        }
+        case "delete": {
+          if (
+            window.confirm("Are you sure you want to delete this chat thread?")
+          ) {
+            await DeleteChatThreadByID(chatThread.id);
+          }
+          break;
+        }
+      }
+    } catch (error) {
+      showError(`${error}`);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return {
