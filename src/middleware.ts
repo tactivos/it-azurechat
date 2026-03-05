@@ -43,8 +43,8 @@ export const config = {
   matcher: [
     "/unauthorized/:path*",
     "/reporting/:path*",
-    "/api/chat:path*",
-    "/api/images:path*",
+    "/api/chat/:path*",
+    "/api/images/:path*",
     "/chat/:path*",
   ],
 };
